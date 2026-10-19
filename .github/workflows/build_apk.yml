@@ -1,0 +1,33 @@
+name: Build Yazan Pro APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.x'
+
+      - name: Create Flutter Project Structure
+        run: |
+          flutter create . --org com.yazanpro.app --project-name yazan_pro
+          flutter pub add shared_preferences sqflite path pdf printing intl
+
+      - name: Build APK Release
+        run: flutter build apk --release
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YazanPro-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+          
