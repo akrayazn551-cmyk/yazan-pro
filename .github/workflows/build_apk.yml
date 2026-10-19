@@ -27,9 +27,7 @@ jobs:
         run: cp lib/main.dart ./main_backup.dart
 
       - name: Create Clean Flutter Project
-        run: |
-          flutter create . --org com.yazanpro.app --project-name yazan_pro
-          flutter pub add shared_preferences path intl
+        run: flutter create . --org com.yazanpro.app --project-name yazan_pro
 
       - name: Restore Custom Main
         run: cp ./main_backup.dart lib/main.dart
