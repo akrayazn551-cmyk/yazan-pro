@@ -1,40 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
-import 'package:intl/intl.dart';
-
-class LicensingService {
-  static Future<bool> isSubscriptionActive() async {
-    final prefs = await SharedPreferences.getInstance();
-    int? expiryTimestamp = prefs.getInt('subscription_expiry');
-    
-    if (expiryTimestamp == null) {
-      return false; 
-    }
-
-    final currentDate = DateTime.now().millisecondsSinceEpoch;
-    return currentDate <= expiryTimestamp;
-  }
-
-  static Future<bool> activateSubscription(String inputCode) async {
-    int currentMonth = DateTime.now().month;
-    String validCode = "YZNPRO-$currentMonth-2026";
-
-    if (inputCode.trim().toUpperCase() == validCode) {
-      final prefs = await SharedPreferences.getInstance();
-      DateTime newExpiry = DateTime.now().add(const Duration(days: 30));
-      await prefs.setInt('subscription_expiry', newExpiry.millisecondsSinceEpoch);
-      return true;
-    }
-    return false;
-  }
-}
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const YazanProApp());
 }
 
@@ -62,27 +28,14 @@ class SubscriptionCheckScreen extends StatefulWidget {
 }
 
 class _SubscriptionCheckScreenState extends State<SubscriptionCheckScreen> {
-  bool _isLoading = true;
   bool _isActive = false;
   final TextEditingController _codeController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _checkStatus();
-  }
+  void _activate() {
+    int currentMonth = DateTime.now().month;
+    String validCode = "YZNPRO-$currentMonth-2026";
 
-  Future<void> _checkStatus() async {
-    bool active = await LicensingService.isSubscriptionActive();
-    setState(() {
-      _isActive = active;
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _activate() async {
-    bool success = await LicensingService.activateSubscription(_codeController.text);
-    if (success) {
+    if (_codeController.text.trim().toUpperCase() == validCode) {
       setState(() {
         _isActive = true;
       });
@@ -98,12 +51,6 @@ class _SubscriptionCheckScreenState extends State<SubscriptionCheckScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     if (!_isActive) {
       return Scaffold(
         appBar: AppBar(title: const Text('تفعيل تطبيق يزن برو')),
