@@ -23,18 +23,17 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Prepare Project Framework
+      - name: Build Flutter Project
         run: |
           mkdir -p temp_app
           cd temp_app
           flutter create yazan_pro --org com.yazanpro.app
-          cp -r yazan_pro/* ../
           cd ..
+          cp -r temp_app/yazan_pro/android .
+          cp -r temp_app/yazan_pro/pubspec.yaml .
           rm -rf temp_app
           flutter pub add shared_preferences path intl
-
-      - name: Build APK Release
-        run: flutter build apk --debug
+          flutter build apk --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
