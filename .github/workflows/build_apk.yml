@@ -32,4 +32,3 @@ jobs:
           git add android/
           git commit -m "Add permanent android project structure" || exit 0
           git push
-          
