@@ -30,7 +30,7 @@ jobs:
         run: |
           mkdir -p temp_dir
           cp lib/main.dart temp_dir/main.dart
-          flutter create . --org com.yazanpro.app --project-name yazan_pro --force
+          flutter create . --org com.yazanpro.app --project-name yazan_pro
           cp temp_dir/main.dart lib/main.dart
 
       - name: Build APK Release with Verbose Logs
