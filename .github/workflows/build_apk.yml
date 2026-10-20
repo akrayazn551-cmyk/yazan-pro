@@ -23,24 +23,18 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Backup Custom Main
-        run: cp lib/main.dart ./main_backup.dart
-
-      - name: Create Clean Flutter Project
-        run: flutter create . --org com.yazanpro.app --project-name yazan_pro
-
-      - name: Add Shared Preferences Package
-        run: flutter pub add shared_preferences
-
-      - name: Restore Custom Main
-        run: cp ./main_backup.dart lib/main.dart
-
-      - name: Build APK Release
-        run: flutter build apk --debug
+      - name: Create Clean Project
+        run: |
+          mkdir -p temp_project
+          cd temp_project
+          flutter create . --org com.yazanpro.app --project-name yazan_pro
+          cp -f ../lib/main.dart ./lib/main.dart
+          flutter build apk --debug
+          cp build/app/outputs/flutter-apk/app-debug.apk ../yazan_pro.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: YazanPro-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          path: yazan_pro.apk
           
