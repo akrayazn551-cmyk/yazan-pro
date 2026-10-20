@@ -23,8 +23,9 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Generate Missing Android Files
-        run: flutter create . --platforms android --org com.yazanpro.app
+      - name: Generate Android Folder Safely
+        run: |
+          flutter create . --platforms android --org com.yazanpro.app --project-name yazan_pro
 
       - name: Get Dependencies
         run: flutter pub get
