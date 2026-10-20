@@ -23,11 +23,17 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
+      - name: Save Main Backup
+        run: cp lib/main.dart main_backup.dart
+
       - name: Create Clean Flutter Project
-        run: |
-          flutter create . --org com.yazanpro.app --project-name yazan_pro
-          cp -f lib/main.dart ./lib/main.dart
-          flutter build apk --debug
+        run: flutter create . --org com.yazanpro.app --project-name yazan_pro
+
+      - name: Restore Main File
+        run: cp main_backup.dart lib/main.dart
+
+      - name: Build APK Release
+        run: flutter build apk --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
