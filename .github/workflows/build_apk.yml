@@ -23,19 +23,16 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Create Base Project
+      - name: Prepare Clean Project
         run: |
           mkdir -p temp_code
-          cp lib/main.dart temp_code/main.dart || true
+          cp lib/main.dart temp_code/main.dart
           rm -rf lib android ios web test pubspec.yaml
           flutter create . --org com.yazanpro.app --project-name yazan_pro
           cp temp_code/main.dart lib/main.dart
 
-      - name: Accept Android Licenses
-        run: yes | flutter doctor --android-licenses || true
-
-      - name: Build APK
-        run: flutter build apk --debug
+      - name: Build APK with Detailed Stacktrace
+        run: flutter build apk --debug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
