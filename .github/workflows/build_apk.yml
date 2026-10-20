@@ -23,6 +23,9 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
+      - name: Generate Missing Android Files
+        run: flutter create . --platforms android --org com.yazanpro.app
+
       - name: Get Dependencies
         run: flutter pub get
 
@@ -34,3 +37,4 @@ jobs:
         with:
           name: YazanPro-APK
           path: build/app/outputs/flutter-apk/app-debug.apk
+          
