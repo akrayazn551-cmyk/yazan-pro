@@ -23,18 +23,8 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Save Main Backup
-        run: cp lib/main.dart main_backup.dart
-
-      - name: Create Clean Flutter Project
-        run: |
-          flutter create . --org com.yazanpro.app --project-name yazan_pro
-          # ترقية ملف إعدادات التوافق ليتوافق مع جافا 17
-          echo "android.useAndroidX=true" >> android/gradle.properties
-          echo "android.enableJetifier=true" >> android/gradle.properties
-
-      - name: Restore Main File
-        run: cp main_backup.dart lib/main.dart
+      - name: Get Dependencies
+        run: flutter pub get
 
       - name: Build APK Release
         run: flutter build apk --debug
