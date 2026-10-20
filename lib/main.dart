@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart0:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -32,7 +32,6 @@ class LockAndSubscriptionGate extends StatefulWidget {
 }
 
 class _LockAndSubscriptionGateState extends State<LockAndSubscriptionGate> {
-  bool _isActivated = true; // مفعل افتراضياً لسهولة التشغيل
   bool _isUnlocked = false;
   String _savedPin = "1234";
 
@@ -309,6 +308,262 @@ class _ProfessionalMainScreenState extends State<ProfessionalMainScreen> {
 }
 
 class DashboardTab extends StatelessWidget {
+  final double totalIncomes;
+  final double totalExpenses;
+  final String currency;
+  final List<Map<String, dynamic>> transactions;
+
+  const DashboardTab({
+    Key? key,
+    required this.totalIncomes,
+    required this.totalExpenses,
+    required this.currency,
+    required this.transactions,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double netProfit = totalIncomes - totalExpenses;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: _buildCard('إجمالي الوارد', '$totalIncomes $currency', Colors.green)),
+              const SizedBox(width: 10),
+              Expanded(child: _buildCard('إجمالي الصادر', '$totalExpenses $currency', Colors.red)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildCard('صافي الموقف المالي (الأرباح)', '$netProfit $currency', Colors.indigo, isFullWidth: true),
+          const SizedBox(height: 20),
+          const Text('سجل الحركة المالية الحديثة:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          transactions.isEmpty
+              ? const Center(child: Padding(padding: EdgeInsets.all(20.0), child: Text('لا توجد قيد محاسبية مسجلة')))
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: transactions.length > 5 ? 5 : transactions.length,
+                  itemBuilder: (context, index) {
+                    final item = transactions[transactions.length - 1 - index];
+                    return Card(
+                      child: ListTile(
+                        leading: Icon(
+                          item['isIncome'] ? Icons.add_circle : Icons.remove_circle,
+                          color: item['isReversed'] ? Colors.grey : (item['isIncome'] ? Colors.green : Colors.red),
+                        ),
+                        title: Text(
+                          item['title'],
+                          style: TextStyle(decoration: item['isReversed'] ? TextDecoration.lineThrough : null),
+                        ),
+                        subtitle: Text('${item['date']} | حساب: ${item['accountType']}'),
+                        trailing: Text(
+                          '${item['amount']} $currency',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: item['isReversed'] ? Colors.grey : (item['isIncome'] ? Colors.green : Colors.red)),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCard(String title, String value, Color color, {bool isFullWidth = false}) {
+    return Card(
+      elevation: 3,
+      color: color,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
+            const SizedBox(height: 5),
+            Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LedgerTab extends StatefulWidget {
+  final Function(String, double, bool, String, {String? customerId}) onAddTransaction;
+  final Function(int, String) onReverseTransaction;
+  final List<Map<String, dynamic>> transactions;
+  final String currency;
+
+  const LedgerTab({
+    Key? key,
+    required this.onAddTransaction,
+    required this.onReverseTransaction,
+    required this.transactions,
+    required this.currency,
+  }) : super(key: key);
+
+  @override
+  _LedgerTabState createState() => _LedgerTabState();
+}
+
+class _LedgerTabState extends State<LedgerTab> {
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+  String _accountType = 'صندوق رئيسي';
+  bool _isIncome = true;
+
+  void _submitEntry() {
+    final title = _titleController.text;
+    final amount = double.tryParse(_amountController.text) ?? 0.0;
+
+    if (title.isEmpty || amount <= 0) return;
+
+    widget.onAddTransaction(title, amount, _isIncome, _accountType);
+    _titleController.clear();
+    _amountController.clear();
+    Navigator.of(context).pop();
+  }
+
+  void _showReverseDialog(int index) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('تسوية قيد عكسي'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('المحاسبة لا تسمح بالحذف المباشر. يرجى كتابة سبب الإلغاء/التسوية:'),
+            TextField(controller: reasonController, decoration: const InputDecoration(labelText: 'السبب')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('إلغاء')),
+          ElevatedButton(
+            onPressed: () {
+              if (reasonController.text.isNotEmpty) {
+                widget.onReverseTransaction(index, reasonController.text);
+                Navigator.of(ctx).pop();
+              }
+            },
+            child: const Text('إجراء قيد عكسي'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: Padding(
+          padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('تسجيل قيد محاسبي جديد', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'بيان القيد المحاسبي')),
+              TextField(controller: _amountController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'المبلغ')),
+              DropdownButtonFormField<String>(
+                value: _accountType,
+                items: ['صندوق رئيسي', 'حساب بنكي', 'مصروف تشغيلي', 'مشتريات/مبيعات']
+                    .map((a) => DropdownMenuItem(value: a, child: Text(a)))
+                    .toList(),
+                onChanged: (val) => setState(() => _accountType = val!),
+                decoration: const InputDecoration(labelText: 'نوع الحساب المقابل'),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ChoiceChip(label: const Text('قيد مدين (وارد)'), selected: _isIncome, onSelected: (_) => setState(() => _isIncome = true)),
+                  const SizedBox(width: 10),
+                  ChoiceChip(label: const Text('قيد دائن (صادر)'), selected: !_isIncome, onSelected: (_) => setState(() => _isIncome = false)),
+                ],
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                onPressed: _submitEntry,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
+                child: const Text('حفظ القيد المحاسبي'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.transactions.isEmpty
+          ? const Center(child: Text('دفتر الأستاذ فارغ حالياً'))
+          : ListView.builder(
+              itemCount: widget.transactions.length,
+              itemBuilder: (ctx, index) {
+                final item = widget.transactions[index];
+                return Card(
+                  color: item['isReversed'] ? Colors.grey.shade200 : Colors.white,
+                  child: ListTile(
+                    title: Text(item['title'], style: TextStyle(decoration: item['isReversed'] ? TextDecoration.lineThrough : null)),
+                    subtitle: Text('${item['date']} | ${item['accountType']}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${item['amount']} ${widget.currency}', style: TextStyle(color: item['isReversed'] ? Colors.grey : (item['isIncome'] ? Colors.green : Colors.red), fontWeight: FontWeight.bold)),
+                        if (!item['isReversed'])
+                          IconButton(icon: const Icon(Icons.undo, color: Colors.orange), onPressed: () => _showReverseDialog(index)),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddDialog,
+        backgroundColor: Colors.indigo,
+        child: const Icon(Icons.post_add, color: Colors.white),
+      ),
+    );
+  }
+}
+
+class CustomersTab extends StatefulWidget {
+  final Function(String, String, double, double, String) onAddCustomer;
+  final List<Map<String, dynamic>> customers;
+  final List<Map<String, dynamic>> transactions;
+  final Function(String, double, bool, String, {String? customerId}) onAddTransaction;
+  final String currency;
+
+  const CustomersTab({
+    Key? key,
+    required this.onAddCustomer,
+    required this.customers,
+    required this.transactions,
+    required this.onAddTransaction,
+    required this.currency,
+  }) : super(key: key);
+
+  @override
+  _CustomersTabState createState() => _CustomersTabState();
+}
+
+class _CustomersTabState extends State<CustomersTab> {
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _debtController = TextEditingController();
+  final _limitController = TextEditingController();
+  final _dueDateController = TextEditingController();
+
+  void _submitCustomer() {
+    final ntelessWidget {
   final double totalIncomes;
   final double totalExpenses;
   final String currency;
