@@ -1,0 +1,38 @@
+plugins {
+        id "com.android.application"
+            id "kotlin-android"
+                id "dev.flutter.flutter-gradle-plugin"
+                }
+
+                def localProperties = new Properties()
+                def localPropertiesFile = rootProject.file('local.properties')
+                if (localPropertiesFile.exists()) {
+                    localPropertiesFile.withReader('UTF-8') { reader ->
+                            localProperties.load(reader)
+                                }
+                                }
+
+                                android {
+                                    namespace "com.yazanpro.app"
+                                        compileSdk 34
+
+                                            defaultConfig {
+                                                    applicationId "com.yazanpro.app"
+                                                            minSdk 21
+                                                                    targetSdk 34
+                                                                            versionCode 1
+                                                                                    versionName "1.0.0"
+                                                                                        }
+
+                                                                                            buildTypes {
+                                                                                                    release {
+                                                                                                                signingConfig signingConfigs.debug
+                                                                                                                        }
+                                                                                                                            }
+                                                                                                                            }
+
+                                                                                                                            flutter {
+                                                                                                                                source '../..'
+                                                                                                                                }
+                                                                                                                                
+}

@@ -1,0 +1,11 @@
+include ':app'
+
+localPropertiesFile = new File(rootProject.projectDir, "local.properties")
+def flutterSdkPath = localPropertiesFile.exists() ? localPropertiesFile.getProperty('flutter.sdk') : null
+
+includeBuild("$flutterSdkPath/packages/flutter_tools/gradle") {
+    executionName = 'flutterGradlePlugin'
+    }
+
+    apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gradle"
+    
