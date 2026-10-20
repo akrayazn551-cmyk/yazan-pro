@@ -1,0 +1,15 @@
+name: yazan_pro
+description: "A zero-dependency Flutter accounting application."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  
