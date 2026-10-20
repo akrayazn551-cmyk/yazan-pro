@@ -21,9 +21,10 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
+          flutter-version: '3.16.5'
+          cache: true
 
-      - name: Save Main.dart Backup
+      - name: Save Main Backup
         run: |
           mkdir -p /tmp/backup
           cp lib/main.dart /tmp/backup/main.dart
@@ -32,12 +33,9 @@ jobs:
         run: |
           flutter create . --org com.yazanpro.app --project-name yazan_pro
 
-      - name: Restore Main.dart File
+      - name: Restore Main File
         run: |
           cp /tmp/backup/main.dart lib/main.dart
-
-      - name: Get Dependencies
-        run: flutter pub get
 
       - name: Build APK Debug
         run: flutter build apk --debug
