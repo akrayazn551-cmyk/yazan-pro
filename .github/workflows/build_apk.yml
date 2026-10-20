@@ -21,23 +21,13 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.5'
-          cache: true
+          flutter-version: '3.19.x'
 
-      - name: Save Main Backup
-        run: |
-          mkdir -p /tmp/backup
-          cp lib/main.dart /tmp/backup/main.dart
+      - name: Get Dependencies
+        run: flutter pub get
 
-      - name: Create Clean Flutter Project
-        run: |
-          flutter create . --org com.yazanpro.app --project-name yazan_pro
-          echo "org.gradle.jvmargs=-Xmx2048M -Dfile.encoding=UTF-8" >> android/gradle.properties
-          echo "org.gradle.daemon=false" >> android/gradle.properties
-
-      - name: Restore Main File
-        run: |
-          cp /tmp/backup/main.dart lib/main.dart
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses
 
       - name: Build APK Debug
         run: flutter build apk --debug
