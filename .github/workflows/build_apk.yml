@@ -23,6 +23,37 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
+      - name: Ensure Android Manifest Exists
+        run: |
+          mkdir -p android/app/src/main
+          if [ ! -f android/app/src/main/AndroidManifest.xml ]; then
+            cat << 'EOF' > android/app/src/main/AndroidManifest.xml
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              package="com.yazanpro.app">
+              <application
+                  android:label="yazan_pro"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:theme="@style/LaunchTheme"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                      android:windowSoftInputMode="adjustResize">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  <meta-data
+                      android:name="flutterEmbedding"
+                      android:value="2" />
+              </application>
+          </manifest>
+          EOF
+          fi
+
       - name: Get Dependencies
         run: flutter pub get
 
