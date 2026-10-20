@@ -1,12 +1,10 @@
-name: Build Yazan Pro APK
+name: Generate Android Structure Permanently
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build:
+  setup-android:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -15,31 +13,23 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '11'
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.6'
+          flutter-version: '3.19.x'
 
-      - name: Generate Android Project
+      - name: Create Android Folder
         run: |
           flutter create . --platforms android --org com.yazanpro.app --project-name yazan_pro
 
-      - name: Accept Android Licenses
+      - name: Commit and Push Android Folder back to Repo
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-      - name: Get Dependencies
-        run: flutter pub get
-
-      - name: Build APK Debug
-        run: flutter build apk --debug --verbose
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: YazanPro-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add android/
+          git commit -m "Add permanent android project structure" || exit 0
+          git push
           
