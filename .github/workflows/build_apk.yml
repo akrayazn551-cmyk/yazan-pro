@@ -15,15 +15,15 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: 'zulu'
+          java-version: '11'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
+          flutter-version: '3.10.6'
 
-      - name: Prepare Clean Project
+      - name: Prepare Clean Project Structure
         run: |
           mkdir -p temp_code
           cp lib/main.dart temp_code/main.dart
@@ -31,7 +31,10 @@ jobs:
           flutter create . --org com.yazanpro.app --project-name yazan_pro
           cp temp_code/main.dart lib/main.dart
 
-      - name: Build APK Debug
+      - name: Accept Licenses
+        run: yes | flutter doctor --android-licenses || true
+
+      - name: Build Debug APK
         run: flutter build apk --debug
 
       - name: Upload APK Artifact
