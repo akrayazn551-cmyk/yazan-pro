@@ -23,17 +23,18 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Save Main Backup
-        run: mkdir -p backup && cp lib/main.dart backup/main.dart
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses
 
-      - name: Create Clean Flutter Project
-        run: flutter create . --org com.yazanpro.app --project-name yazan_pro
+      - name: Create Clean Project & Restore Main
+        run: |
+          mkdir -p temp_dir
+          cp lib/main.dart temp_dir/main.dart
+          flutter create . --org com.yazanpro.app --project-name yazan_pro --force
+          cp temp_dir/main.dart lib/main.dart
 
-      - name: Restore Main File
-        run: cp backup/main.dart lib/main.dart
-
-      - name: Build APK Release
-        run: flutter build apk --debug
+      - name: Build APK Release with Verbose Logs
+        run: flutter build apk --debug --verbose
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
