@@ -29,6 +29,9 @@ jobs:
       - name: Create Clean Flutter Project
         run: flutter create . --org com.yazanpro.app --project-name yazan_pro
 
+      - name: Add Shared Preferences Package
+        run: flutter pub add shared_preferences
+
       - name: Restore Custom Main
         run: cp ./main_backup.dart lib/main.dart
 
