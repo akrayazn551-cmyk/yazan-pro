@@ -23,13 +23,18 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Get Dependencies
-        run: flutter pub get
+      - name: Create Base Project
+        run: |
+          mkdir -p temp_code
+          cp lib/main.dart temp_code/main.dart || true
+          rm -rf lib android ios web test pubspec.yaml
+          flutter create . --org com.yazanpro.app --project-name yazan_pro
+          cp temp_code/main.dart lib/main.dart
 
       - name: Accept Android Licenses
-        run: yes | flutter doctor --android-licenses
+        run: yes | flutter doctor --android-licenses || true
 
-      - name: Build APK Debug
+      - name: Build APK
         run: flutter build apk --debug
 
       - name: Upload APK Artifact
