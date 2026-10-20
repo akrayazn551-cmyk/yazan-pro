@@ -23,8 +23,14 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Get Dependencies
-        run: flutter pub get
+      - name: Save Main Backup
+        run: mkdir -p backup && cp lib/main.dart backup/main.dart
+
+      - name: Create Clean Flutter Project
+        run: flutter create . --org com.yazanpro.app --project-name yazan_pro
+
+      - name: Restore Main File
+        run: cp backup/main.dart lib/main.dart
 
       - name: Build APK Release
         run: flutter build apk --debug
