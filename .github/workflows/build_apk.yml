@@ -32,13 +32,14 @@ jobs:
       - name: Create Clean Flutter Project
         run: |
           flutter create . --org com.yazanpro.app --project-name yazan_pro
+          echo "org.gradle.jvmargs=-Xmx2048M -Dfile.encoding=UTF-8" >> android/gradle.properties
 
       - name: Restore Main File
         run: |
           cp /tmp/backup/main.dart lib/main.dart
 
       - name: Build APK Debug
-        run: flutter build apk --debug
+        run: flutter build apk --debug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
