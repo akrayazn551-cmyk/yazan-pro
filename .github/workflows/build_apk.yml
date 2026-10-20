@@ -23,18 +23,15 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Create Clean Project
+      - name: Create Clean Flutter Project
         run: |
-          mkdir -p temp_project
-          cd temp_project
           flutter create . --org com.yazanpro.app --project-name yazan_pro
-          cp -f ../lib/main.dart ./lib/main.dart
+          cp -f lib/main.dart ./lib/main.dart
           flutter build apk --debug
-          cp build/app/outputs/flutter-apk/app-debug.apk ../yazan_pro.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: YazanPro-APK
-          path: yazan_pro.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
           
