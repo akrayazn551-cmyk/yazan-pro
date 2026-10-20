@@ -31,8 +31,8 @@ jobs:
           flutter create . --org com.yazanpro.app --project-name yazan_pro
           cp temp_code/main.dart lib/main.dart
 
-      - name: Build APK with Detailed Stacktrace
-        run: flutter build apk --debug --stacktrace
+      - name: Build APK Debug
+        run: flutter build apk --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
